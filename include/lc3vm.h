@@ -18,11 +18,29 @@
 #define NUMOPS (16)
 
 // Need to #define all of your bit manipulation macros like DR, SR1, etc. here.
+/**
+ * @brief Bit extraction and sign extension macros for LC-3 instructions.
+ *
+ * These macros decode parts of a 16-bit instruction such as opcode,
+ * registers, and offsets using bitwise operations.
+ */
+
 #define FIMM(i) ((i >> 5) & 0x1)
 #define FCND(i) (((i) >> 9) & 0x7)
 #define BR(i) (((i) >> 6) & 0x7)
 #define FL(i) (((i) >> 11) & 1)
 #define TRP(i) ((i) & 0xFF)
+
+#define OPC(i) ((i) >> 12)
+
+#define SR2(i) ((i) & 0x0007)
+#define SR1(i) (((i) >> 6) & 0x0007)
+#define DR(i) (((i) >> 9) & 0x0007)
+
+#define SEXTIMM(i) (sign_extend((i) & 0x001F, 5))
+#define OFF6(i) (sign_extend((i) & 0x003F, 6))
+#define PCOFF9(i) (sign_extend((i) & 0x01FF, 9))
+#define PCOFF11(i) (sign_extend((i) & 0x07FF, 11))
 
 typedef void (*op_ex_f)(uint16_t i);
 typedef void (*trp_ex_f)();
@@ -65,8 +83,46 @@ extern uint16_t mem[];
 extern uint16_t reg[];
 extern uint16_t PC_START;
 
-// your task functions should go here
+// task functions should go here
+//  Reads a value from memory at the given address - task 1
+uint16_t mem_read(uint16_t address);
 
+// Writes a value to memory at the given address - task 1
+void mem_write(uint16_t address, uint16_t value);
+
+// Extends the sign of a value to 16 bits based on the sign bit position- task 2
+uint16_t sign_extend(uint16_t bits, int sign_position);
+
+/**
+ * @brief Updates the condition flags register.
+ *
+ * Sets the RCND register to negative, zero, or positive depending
+ * on the current value stored in the modified register.
+ *
+ * @param modified_register The register whose value is used to set flags.
+ */
+void update_flags(enum registr modified_register);
+
+void trap(uint16_t i);
+void start(uint16_t offset);
+void ld_img(char* fname, uint16_t offset);
+
+void ld(uint16_t i);
+void ldi(uint16_t i);
+void ldr(uint16_t i);
+void lea(uint16_t i);
+
+void add(uint16_t i);
+void andlc(uint16_t i);
+void notlc(uint16_t i);
+
+void st(uint16_t i);
+void sti(uint16_t i);
+void str(uint16_t i);
+
+void jmp(uint16_t i);
+void br(uint16_t i);
+void jsr(uint16_t i);
 void rti(uint16_t i);
 void res(uint16_t i);
 void tgetc();
